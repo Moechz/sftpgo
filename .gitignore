@@ -1,0 +1,10 @@
+# 构建产物与中间文件
+build/
+out/
+
+# 上游调研原始材料（验证结论已沉淀进 docs/DESIGN_DECISIONS.md）
+research/
+
+# 本地杂项
+.DS_Store
+*.log

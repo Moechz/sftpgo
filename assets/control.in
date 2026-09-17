@@ -1,0 +1,21 @@
+Package: sftpgo
+Version: @VERSION@
+Architecture: @ARCH@
+Maintainer: @MAINTAINER@
+Installed-Size: @SIZE@
+Depends: systemd
+Section: net
+Priority: optional
+Homepage: https://github.com/drakkan/sftpgo
+Description: Full-featured file transfer server (SFTP/WebDAV/FTP) with web UIs
+ SFTPGo is a full-featured and highly configurable file transfer server
+ supporting SFTP, WebDAV, FTP/S and HTTP/S, with local and cloud storage
+ backends. It bundles both the WebAdmin UI (manage users, folders, groups,
+ event rules, shares) and the WebClient UI (browser file access, shares,
+ two-factor authentication).
+ .
+ This TOS package runs the upstream static Go binary (SQLite data provider,
+ zero runtime dependencies). Web UIs and WebDAV are served behind the TOS
+ web server route /sftpgo/ (backend on loopback only); the REST API is
+ exposed at /sftpgo/api/v2/. SFTP listens on port 2022. Data is stored in
+ /var/lib/sftpgo.

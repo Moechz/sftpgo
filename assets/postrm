@@ -1,0 +1,31 @@
+#!/bin/bash
+# postrm - 删除/清除后处理（官方模板 + 本应用清理项）
+set -e
+
+MAINT_LOG=/var/log/sftpgo-maint.log
+mkdir -p /var/log 2>/dev/null || true
+echo "$(date '+%F %T') postrm $*" >> "$MAINT_LOG" 2>/dev/null || true
+
+systemctl daemon-reload 2>/dev/null || true
+
+if [ "$1" = "purge" ]; then
+  # 用户/虚拟用户/管理员账号、备份（sqlite 数据库——purge 即全部清除）
+  rm -rf /var/lib/sftpgo
+  # dpkg 清单外的运行时残留（用户配置、env、SFTP host key）
+  rm -rf /usr/local/sftpgo
+  # 系统层注册文件（postinst 兜底安装的）
+  rm -f /etc/systemd/system/sftpgo.service
+  rm -f /etc/nginx/conf.d/sftpgo.conf
+  # 运行用户
+  if id -u sftpgo > /dev/null 2>&1; then
+    userdel sftpgo 2>/dev/null || true
+  fi
+  systemctl daemon-reload 2>/dev/null || true
+  # nginx 路由移除后重载生效
+  if command -v nginx > /dev/null 2>&1 && nginx -t > /dev/null 2>&1; then
+    nginx -s reload > /dev/null 2>&1 || true
+  fi
+  # 注：/var/log/sftpgo-maint.log 保留（purge 取证用）
+fi
+
+exit 0

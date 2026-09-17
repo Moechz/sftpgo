@@ -1,0 +1,39 @@
+[Unit]
+Description=SFTPGo file transfer server (SFTP/WebDAV/FTP + web UIs)
+Documentation=https://docs.sftpgo.com
+After=network.target
+StartLimitBurst=5
+StartLimitIntervalSec=60
+
+[Service]
+Type=simple
+User=sftpgo
+Group=sftpgo
+# 数据目录为工作目录（httpd 相对路径兜底基准；实际配置全用绝对路径）
+WorkingDirectory=/var/lib/sftpgo
+Environment=SFTPGO_LOG_FILE_PATH=
+EnvironmentFile=-/usr/local/sftpgo/sftpgo.env
+# ExecStart 写死参数（TOS 规范：systemd 仅支持基本 $VAR 展开，禁 shell 风格默认值）；
+# 监听地址/端口在 /usr/local/sftpgo/sftpgo.json 中配置，可用 env 覆盖
+ExecStart=/usr/local/sftpgo/bin/sftpgo serve --config-dir /usr/local/sftpgo
+TimeoutStartSec=30
+TimeoutStopSec=10
+# 注意：按 TOS 规范不配置 Restart/RestartSec——生命周期由应用中心统一管理
+#
+# 沙箱说明（与 beszel 等 Web 应用不同，本服务必须能写共享文件夹）：
+#   ProtectSystem=full（非 strict）：/usr /boot /etc 只读，其余可写
+#     → /volume1 等 TOS 共享文件夹可写（上传落盘必须），strict 会 EROFS
+#   ReadWritePaths 在只读区打洞：仅数据目录（DB + host keys；D-013：/usr/local
+#   会被 TOS 接管时规范成 root 只读，服务不得依赖写应用目录）
+#   ProtectHome=read-only：/home 可读（虚拟用户可映射下载）、不可写；
+#     需写 /home 时用 drop-in 覆盖（见 README）
+NoNewPrivileges=true
+ProtectSystem=full
+ProtectHome=read-only
+ReadWritePaths=/var/lib/sftpgo
+LimitNOFILE=65536
+PrivateTmp=true
+UMask=0022
+
+[Install]
+WantedBy=multi-user.target
