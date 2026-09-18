@@ -80,6 +80,12 @@ sudo usermod -aG <共享文件夹组> sftpgo && sudo systemctl restart sftpgo
 升级（服务单元自动替换）。上游数据在 `/etc/sftpgo/sftpgo.db`，本包数据在
 `/var/lib/sftpgo/`——升级时安装器会打印迁移提示，需手动复制一次。
 
+## 可复现性（V6 审核整改）
+
+deb 内的 sftpgo 二进制由本仓库公开配方（`scripts/repro-build.sh`）从上游
+官方源码构建，期望哈希与三步验证流程见 [VERIFICATION.md](VERIFICATION.md)；
+一键环境见 [Dockerfile.repro](Dockerfile.repro)。
+
 ## 构建
 
 ```bash

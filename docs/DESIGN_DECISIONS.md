@@ -173,3 +173,35 @@ webui.bz2 占位页内链接；.lang 的 important 字段提及路径；README �
   （install_code/language 可省）；成功返回 302，失败 200 重渲染
 - 本地测试曾持续 200/500：系残留进程占用 2022 使 serve 半死 + 删库未删
   -wal/-shm 致库损坏，非产品缺陷（换端口 + 连 wal 一起清后全绿）
+
+
+## D-015 二进制改为源码可复现自建产物（V6 整改）
+
+**日期**：2026-09-19 ｜ **状态**：已实施（2.7.5-4）
+
+**背景**：TOS 审核 V6 拒审——deb 携带上游预编译 stripped 二进制，无「源码可审计」
+映射；双渠道哈希互证只证明供应链一致，不构成可复现性证据。
+
+**决策**：不再分发上游预编译二进制，改为 `scripts/repro-build.sh` 公开配方自建：
+
+- 源码 = 上游官方 tag 归档（sha256 锁定，commit `9888a3d1`）
+- 工具链 = go1.25.12 官方 tarball（sha256 锁定）+ gcc 11.4 + glibc 2.35
+  （Ubuntu 22.04 = TOS 7 基座；构建时强制校验，漂移即拒绝）
+- 构建命令 = 与上游 `.github/workflows/release.yml` 逐字一致；
+  唯一偏差：`version.date` 固定为 tag 提交时间（上游注入构建时刻，不可复现）
+- 可复现性判据：**任意机器按配方重建 → 与分发物位级一致**（两次独立构建
+  x86_64 `5c5415f1…` / aarch64 `7a3932a2…` 已互证）
+- 与官方 CI 产物哈希不同属预期（其环境为 Ubuntu 18.04/gcc-7）；
+  版本串/依赖集与官方一致（`go version -m` 可交叉印证）
+
+**管线变化**：
+- fetch 阶段：下载源码归档（非二进制 tarball/deb）；自建产物入
+  `build/downloads/repro/`，`REPRO_BUILD_HOST` 环境变量指定私有构建机
+  （主机名不入库）；lock 语义迁移为 `REPRO.lock.<arch>`（源码+自建二进制）
+- verify 新断言：staged 二进制哈希 == 自建产物；复现材料三件套必须在库
+  （scripts/repro-build.sh / Dockerfile.repro / VERIFICATION.md）
+- 审核者复现入口：仓库根 `VERIFICATION.md`（三步验证 + 期望哈希表）
+
+**为什么不选纯 Go（CGO_ENABLED=0）**：sqlite 驱动为 mattn/go-sqlite3
+（`//go:build !nosqlite && cgo`），关闭 CGO 将失去 sqlite 数据层，
+或需换 bolt 存储引擎——变更产品数据层不属 V6 整改范围。

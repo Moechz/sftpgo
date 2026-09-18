@@ -50,10 +50,15 @@ case "$TARGET_ARCH" in
 esac
 
 TAG="v$SFTPGO_VERSION"
-RELEASE_BASE="https://github.com/drakkan/sftpgo/releases/download/$TAG"
-MIRROR_BASE="https://ghfast.top/$RELEASE_BASE"
-TARBALL="sftpgo_${TAG}_linux_${GOARCH}.tar.xz"
-UPSTREAM_DEB="sftpgo_${SFTPGO_VERSION}-1_${TARGET_ARCH}.deb"
+RELEASE_BASE="https://github.com/drakkan/sftpgo/releases/download/$TAG"   # 仅参考（对照官方产物用）
+# 源码构建常量（V6 整改：deb 内二进制必须源码可复现；单一事实源 = scripts/repro-build.sh）
+SRC_TARBALL="sftpgo-${SFTPGO_VERSION}.tar.gz"
+SRC_URL="https://github.com/drakkan/sftpgo/archive/refs/tags/v${SFTPGO_VERSION}.tar.gz"
+SRC_MIRROR="https://ghfast.top/${SRC_URL}"
+SRC_SHA256=$(grep '^SRC_SHA256=' "$SCRIPT_DIR/scripts/repro-build.sh" | cut -d'"' -f2)
+SRC_COMMIT=$(grep '^SRC_COMMIT=' "$SCRIPT_DIR/scripts/repro-build.sh" | cut -d'"' -f2)
+GO_VERSION_PIN=$(grep '^GO_VERSION=' "$SCRIPT_DIR/scripts/repro-build.sh" | cut -d'"' -f2)
+REPRO_DIR="$DL_DIR/repro"
 LICENSE_FILE="LICENSE"
 NOTICE_FILE="NOTICE"
 DEB_FILE="$OUT_DIR/${APP_ID}_${VERSION_FULL}_${TOS_PLATFORM}.deb"
@@ -87,11 +92,11 @@ for p in sys.argv[1:]:
 PYEOF
 }
 
-fetch() { # fetch <url> <dest-file>（GitHub 直连 + 镜像备选 + 断点续传）
+fetch() { # fetch <url> <dest-file>（GitHub 直连 + ghfast 镜像备选 + 断点续传）
   local url=$1 dest=$2
   if [ -s "$dest" ]; then return 0; fi
   mkdir -p "$(dirname "$dest")"
-  local mirror="${url/$RELEASE_BASE/$MIRROR_BASE}"
+  local mirror="${url/https:\/\/github.com/https:\/\/ghfast.top\/https:\/\/github.com}"
   for attempt in 1 2 3; do
     if curl -fL --retry 3 --retry-delay 3 --retry-all-errors \
          --connect-timeout 20 -C - -o "$dest.part" "$url"; then
@@ -118,112 +123,79 @@ fetch() { # fetch <url> <dest-file>（GitHub 直连 + 镜像备选 + 断点续�
 #   3) 资产大小与 GitHub API 一致（构建时打印供人工核对）
 # ============================================================
 stage_fetch() {
-  mkdir -p "$DL_DIR"
+  mkdir -p "$DL_DIR" "$REPRO_DIR"
 
-  # 0) 优先复用本地调研缓存（research/ 手工下载过的同名文件）
-  for f in "$TARBALL" "$UPSTREAM_DEB"; do
-    if [ ! -s "$DL_DIR/$f" ] && [ -s "$RESEARCH_DIR/$f" ]; then
-      cp "$RESEARCH_DIR/$f" "$DL_DIR/$f"
-      log "复用本地缓存: research/$f"
+  # 1) 源码 tarball（上游官方 tag 归档；配方锁定 sha256，见 scripts/repro-build.sh）
+  if [ ! -s "$DL_DIR/$SRC_TARBALL" ] || [ "$(sha256_of "$DL_DIR/$SRC_TARBALL")" != "$SRC_SHA256" ]; then
+    log "下载源码 $SRC_URL"
+    fetch "$SRC_URL" "$DL_DIR/$SRC_TARBALL"
+  fi
+  [ "$(sha256_of "$DL_DIR/$SRC_TARBALL")" = "$SRC_SHA256" ] \
+    || die "源码 sha256 不匹配（期望 $SRC_SHA256）"
+
+  # 2) 自建二进制（源码可复现产物）。本机非 Linux 时可经 REPRO_BUILD_HOST
+  #    环境变量指定的构建机执行（主机名为私有配置，不入库）
+  local BIN_NAME="sftpgo_$TOS_PLATFORM"   # x86_64 / aarch64（repro-build.sh 产物命名）
+  if [ ! -s "$REPRO_DIR/$BIN_NAME" ]; then
+    if [ -n "${REPRO_BUILD_HOST:-}" ]; then
+      log "经 REPRO_BUILD_HOST 执行可复现构建配方..."
+      local RDIR="/tmp/sftpgo-repro-$SFTPGO_VERSION-$$"
+      ssh "$REPRO_BUILD_HOST" "mkdir -p $RDIR" 2>/dev/null || die "无法连接 REPRO_BUILD_HOST"
+      cat "$SCRIPT_DIR/scripts/repro-build.sh" | ssh "$REPRO_BUILD_HOST" "cat > $RDIR/repro-build.sh && chmod +x $RDIR/repro-build.sh"
+      cat "$DL_DIR/$SRC_TARBALL" | ssh "$REPRO_BUILD_HOST" "cat > $RDIR/$SRC_TARBALL"
+      ssh "$REPRO_BUILD_HOST" "bash -n $RDIR/repro-build.sh && ${REPRO_GOPROXY:+GOPROXY=$REPRO_GOPROXY} $RDIR/repro-build.sh $RDIR" 2>&1 | tail -6
+      local f
+      for f in sftpgo_x86_64 sftpgo_aarch64 manifest.txt; do
+        ssh "$REPRO_BUILD_HOST" "cat $RDIR/out/$f" > "$REPRO_DIR/$f" \
+          || die "构建产物取回失败（$f）"
+      done
+      ssh "$REPRO_BUILD_HOST" "rm -rf $RDIR" 2>/dev/null || true
+    else
+      cat >&2 <<EOF
+缺少自建二进制 $REPRO_DIR/$BIN_NAME
+获取方式（三选一）:
+  a) 在任意 Ubuntu 22.04 x86_64 机器上执行:   ./scripts/repro-build.sh <工作目录>
+     产物 sftpgo_x86_64 / sftpgo_aarch64 / manifest.txt 拷入 $REPRO_DIR/
+  b) 有 Docker 的机器:   docker build -f Dockerfile.repro -t sftpgo-repro . && docker run --rm -v $PWD/$REPRO_DIR:/out sftpgo-repro
+  c) 私有构建机:         REPRO_BUILD_HOST=<host> ./build.sh
+EOF
+      die "请先产出可复现构建产物"
     fi
-  done
-
-  # 1) 二进制 tarball + 上游官方 deb（交叉校验用）+ LICENSE/NOTICE 在 tarball 内
-  fetch "$RELEASE_BASE/$TARBALL"     "$DL_DIR/$TARBALL"
-  fetch "$RELEASE_BASE/$UPSTREAM_DEB" "$DL_DIR/$UPSTREAM_DEB"
-
-  # 2) SHA256.lock 比对 / 固化（按架构分锁：每个架构首次 fetch 固化各自的哈希）
-  local LOCK="$DL_DIR/SHA256.lock.$TARGET_ARCH"
-  local tgz_sha deb_sha
-  tgz_sha=$(sha256_of "$DL_DIR/$TARBALL")
-  deb_sha=$(sha256_of "$DL_DIR/$UPSTREAM_DEB")
-  if [ -f "$LOCK" ]; then
-    log "校验 SHA256.lock.$TARGET_ARCH..."
-    local want_tgz want_deb
-    want_tgz=$(grep " $TARBALL\$"  "$LOCK" | awk '{print $1}')
-    want_deb=$(grep " $UPSTREAM_DEB\$" "$LOCK" | awk '{print $1}')
-    [ "$tgz_sha" = "$want_tgz" ] || die "sha256 不匹配: $TARBALL（lock=$want_tgz got=$tgz_sha，若确属上游换包，删 build/downloads/SHA256.lock.* 后重跑）"
-    [ "$deb_sha" = "$want_deb" ] || die "sha256 不匹配: $UPSTREAM_DEB（lock=$want_deb got=$deb_sha）"
-    log "  ok: 与锁定哈希一致"
-  else
-    python3 - "$DL_DIR/$TARBALL" "$tgz_sha" "$DL_DIR/$UPSTREAM_DEB" "$deb_sha" <<'PYEOF'
-import sys
-tgz, tgz_sha, deb, deb_sha = sys.argv[1:5]
-lock = tgz.rsplit('/', 1)[0] + '/SHA256.lock.' + ('arm64' if 'arm64' in tgz else 'amd64')
-with open(lock, 'w') as f:
-    f.write(f"{tgz_sha}  {tgz.rsplit('/', 1)[1]}\n")
-    f.write(f"{deb_sha}  {deb.rsplit('/', 1)[1]}\n")
-print(f"{lock.rsplit('/', 1)[1]} 已固化（禁止手改，见 AGENTS.md）")
-PYEOF
   fi
 
-  # 3) tarball 二进制 vs 官方 deb 二进制交叉校验（独立渠道互证）
-  log "交叉校验 tarball 与上游官方 deb 内的二进制..."
-  python3 - "$DL_DIR/$TARBALL" "$DL_DIR/$UPSTREAM_DEB" "$ELF_ARCH" <<'PYEOF' || die "上游资产交叉校验失败"
-import hashlib, sys, tarfile, tempfile, os, io
+  # 3) REPRO.lock.<arch>（管线防篡改：源码 + 本架构自建二进制；首次固化）
+  local LOCK="$DL_DIR/REPRO.lock.$TARGET_ARCH"
+  local bin_sha
+  bin_sha=$(sha256_of "$REPRO_DIR/$BIN_NAME")
+  if [ -f "$LOCK" ]; then
+    log "校验 REPRO.lock.$TARGET_ARCH..."
+    local want_bin want_src
+    want_bin=$(grep " $BIN_NAME\$" "$LOCK" | awk '{print $1}')
+    want_src=$(grep " $SRC_TARBALL\$" "$LOCK" | awk '{print $1}')
+    [ "$bin_sha" = "$want_bin" ] || die "自建二进制哈希与锁定值不符（lock=$want_bin got=$bin_sha）——配方或工具链变动？确认后删 $LOCK 重新固化"
+    [ "$SRC_SHA256" = "$want_src" ] || die "源码哈希与锁定值不符"
+    log "  ok: 与锁定哈希一致"
+  else
+    { echo "$SRC_SHA256  $SRC_TARBALL"; echo "$bin_sha  $BIN_NAME"; } > "$LOCK"
+    log "REPRO.lock.$TARGET_ARCH 已固化（二进制 $(echo "$bin_sha" | cut -c1-12)...）"
+  fi
 
-tgz_path, deb_path, elf_arch = sys.argv[1:4]
-
-def sha(data):
-    return hashlib.sha256(data).hexdigest()
-
-# tarball: 提取 ./sftpgo 二进制
-with tarfile.open(tgz_path, 'r:xz') as tf:
-    bin_data = tf.extractfile('sftpgo').read()
-    json_data = tf.extractfile('sftpgo.json').read()
-    license_data = tf.extractfile('LICENSE').read()
-    notice_data = None
-    try:
-        notice_data = tf.extractfile('NOTICE').read()
-    except KeyError:
-        pass
-
-# deb: ar 归档 → data.tar.* → ./usr/bin/sftpgo
-def read_ar_exactly(path):
-    data = open(path, 'rb').read()
-    assert data[:8] == b'!<arch>\n', 'not an ar archive'
-    off = 8
-    members = {}
-    while off < len(data):
-        hdr = data[off:off+60]
-        name = hdr[0:16].decode().rstrip()
-        size = int(hdr[48:58].decode().strip())
-        body = data[off+60:off+60+size]
-        members[name.rstrip('/')] = body
-        off += 60 + size + (size % 2)
-    return members
-
-ar_members = read_ar_exactly(deb_path)
-deb_bin = None
-for name, body in ar_members.items():
-    if name.startswith('data.tar'):
-        mode = 'r:xz' if name.endswith('.xz') else ('r:bz2' if name.endswith('.bz2') else 'r:gz')
-        with tarfile.open(fileobj=io.BytesIO(body), mode=mode) as tf:
-            for m in tf.getmembers():
-                if m.name in ('./usr/bin/sftpgo', 'usr/bin/sftpgo'):
-                    deb_bin = tf.extractfile(m).read()
-                    break
-assert deb_bin is not None, 'upstream deb has no /usr/bin/sftpgo'
-
-h_tgz, h_deb = sha(bin_data), sha(deb_bin)
-print(f"  tarball sftpgo : {h_tgz}")
-print(f"  deb sftpgo     : {h_deb}")
-assert h_tgz == h_deb, 'BINARY MISMATCH between tarball and official deb'
-print('  交叉校验通过：两条独立分发渠道的二进制完全一致')
-# 顺带导出 tarball 内的 config/LICENSE/NOTICE 供 stage 使用
-tmp = os.environ.get('TMPDIR', '/tmp')
-with open(os.path.join(tmp, 'sftpgo-upstream.json'), 'wb') as f: f.write(json_data)
-with open(os.path.join(tmp, 'sftpgo-upstream-LICENSE'), 'wb') as f: f.write(license_data)
-if notice_data:
-    with open(os.path.join(tmp, 'sftpgo-upstream-NOTICE'), 'wb') as f: f.write(notice_data)
-PYEOF
+  # 4) 产物完整性：manifest 声明 == 实际哈希；buildinfo 注入抽查（V6 证据链）
+  log "校验自建产物（manifest + buildinfo 注入）..."
+  ( cd "$REPRO_DIR" && grep -F "$bin_sha  $BIN_NAME" manifest.txt >/dev/null ) \
+    || die "manifest.txt 未包含本架构二进制哈希——产物与配方不配套，请重跑 repro-build.sh"
+  local n_hit
+  n_hit=$(strings "$REPRO_DIR/$BIN_NAME" 2>/dev/null | grep -c "$SRC_COMMIT" || true)
+  [ "${n_hit:-0}" -ge 1 ] \
+    || die "二进制未含源码 commit $SRC_COMMIT（version.commit 注入失败）"
+  log "  ok: 源码可复现产物就绪（commit $SRC_COMMIT / $GO_VERSION_PIN）"
 }
 
 # ============================================================
 # 阶段: stage —— 组装 deb 文件系统树（官方规范布局）
 # ============================================================
 stage_stage() {
-  [ -s "$DL_DIR/$TARBALL" ] || die "缺少 $TARBALL，请先运行: ./build.sh fetch"
+  [ -s "$REPRO_DIR/sftpgo_$TOS_PLATFORM" ] || die "缺少自建二进制，请先运行: ./build.sh fetch"
 
   local APP="$STAGE_DIR/usr/local/$APP_ID"
   log "组装文件系统树: $STAGE_DIR（/usr/local/$APP_ID 规范布局）"
@@ -232,13 +204,19 @@ stage_stage() {
   mkdir -p "$STAGE_DIR/usr/share/doc/$APP_ID"
 
   # 二进制 + static/templates/openapi（模板缺失会启动 fatal、静态资源非内嵌，D-010）
-  log "  + bin/sftpgo + static/ + templates/ + openapi/（上游 $SFTPGO_VERSION）"
-  tar -xJf "$DL_DIR/$TARBALL" -C "$APP" --strip-components=0 \
-      sftpgo static templates openapi LICENSE NOTICE 2>/dev/null \
-    || tar -xJf "$DL_DIR/$TARBALL" -C "$APP" sftpgo static templates openapi LICENSE
-  mv "$APP/sftpgo" "$APP/bin/sftpgo"
+  # V6 整改（D-015）：二进制 = 源码可复现自建产物；资源 = 上游源码树同名目录
+  log "  + bin/sftpgo（源码自建 $SRC_COMMIT）+ static/ + templates/ + openapi/"
+  local SRC_DIR="$BUILD_DIR/src"
+  rm -rf "$SRC_DIR"; mkdir -p "$SRC_DIR"
+  tar -xzf "$DL_DIR/$SRC_TARBALL" -C "$SRC_DIR" --strip-components=1
+  cp "$REPRO_DIR/sftpgo_$TOS_PLATFORM" "$APP/bin/sftpgo"
   chmod 0755 "$APP/bin/sftpgo"
+  cp -R "$SRC_DIR/static" "$SRC_DIR/templates" "$SRC_DIR/openapi" "$APP/"
   chmod -R a+rX "$APP/static" "$APP/templates" "$APP/openapi"
+  # make-config 输入与文档引用的上游默认文件（源码树导出）
+  cp "$SRC_DIR/sftpgo.json" "${TMPDIR:-/tmp}/sftpgo-upstream.json"
+  cp "$SRC_DIR/LICENSE" "${TMPDIR:-/tmp}/sftpgo-upstream-LICENSE"
+  cp "$SRC_DIR/NOTICE" "${TMPDIR:-/tmp}/sftpgo-upstream-NOTICE" 2>/dev/null || true
 
   # config.ini（严格 JSON；@@...@@ 占位符渲染）
   log "  + config.ini（External Open: open_path=true, path=/$APP_ID/）"
@@ -495,6 +473,14 @@ PYEOF
   local n_wrong
   n_wrong=$(find "$APP" -type f -exec file {} + 2>/dev/null | grep -c "Mach-O" || true)
   [ "$n_wrong" -eq 0 ] || { warn "发现 $n_wrong 个 Mach-O 文件混入！"; fail=1; }
+
+  # V6（D-015）：staged 二进制 == 源码可复现自建产物（哈希必须一致）
+  [ "$(sha256_of "$APP/bin/sftpgo")" = "$(sha256_of "$REPRO_DIR/sftpgo_$TOS_PLATFORM")" ] \
+    || { warn "staged 二进制与自建产物哈希不一致！"; fail=1; }
+  # 复现材料齐全（V6 整改硬要求）
+  for f in scripts/repro-build.sh Dockerfile.repro VERIFICATION.md; do
+    [ -f "$SCRIPT_DIR/$f" ] || { warn "缺少复现材料 $f（V6 必备）"; fail=1; }
+  done
 
   log "S8 零网络断言（坑 15：deb 维护脚本不得在线安装；审查员同款扫法）..."
   local net_hits

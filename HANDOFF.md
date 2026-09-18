@@ -27,8 +27,14 @@
 
 ```bash
 cd ~/Documents/projects/sftpgo
-cat AGENTS.md docs/DESIGN_DECISIONS.md     # 必读
-make check && ./build.sh                    # 确认可复现（产物 out/）
+REPRO_BUILD_HOST=<私有构建机> ./build.sh   # macOS 时经远程自建；Linux 可本地直跑
+make check                                  # 无网络自检
+```
+（二进制来源已切换为源码可复现自建，见 D-015；期望哈希见 VERIFICATION.md）
+
+```bash
+cat AGENTS.md docs/DESIGN_DECISIONS.md     # 必读（旧版升级可从 D-015 读起）
+cat VERIFICATION.md                        # 可复现验证与期望哈希
 ```
 
 ## 剩余工作（按优先级）
@@ -46,12 +52,16 @@ make check && ./build.sh                    # 确认可复现（产物 out/）
 
 ## 上游版本升级流程
 
-1. `config.env` 改 SFTPGO_VERSION → `./build.sh`（fetch 会重新固化新
-   SHA256.lock.<arch>，需人眼核对来源仍为官方 release）
-2. 首次安装新版本会因 templates 结构变化失败启动 → 检查
+1. `scripts/repro-build.sh` 头部改常量：SFTPGO_VERSION / SRC_COMMIT / SRC_DATE /
+   源码 sha256 / Go 版本与 sha256（单一事实源，build.sh 自动读取）
+2. `config.env` 同步 SFTPGO_VERSION + PKG_RELEASE 递增；重跑 `./build.sh`
+   （REPRO_BUILD_HOST 私有构建机编排，主机名不入库；建议同时
+   `export REPRO_GOPROXY` 走国内代理）
+3. 期望哈希更新进 VERIFICATION.md（上游 CI 换工具链时自建哈希会变）
+4. 首次安装新版本会因 templates 结构变化失败启动 → 检查
    `journalctl -u sftpgo`；缺目录就同步 `assets/config.ini.in` 的 FILES 段
-3. Breaking change 对照 DESIGN_DECISIONS 里的实验结论复核
-   （web_root 前缀、webdavd prefix、client_ip 头、DEFAULT_ADMIN 引导）
+5. Breaking change 对照 DESIGN_DECISIONS 里的实验结论复核
+   （web_root 前缀、webdavd prefix、client_ip 头、首启向导）
 
 ## 卸载/回滚
 

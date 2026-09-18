@@ -60,10 +60,16 @@ AGENTS.md → HANDOFF.md → docs/TASK_STATE.md → docs/DESIGN_DECISIONS.md →
 
 ```bash
 cd ~/Documents/projects/sftpgo
-./build.sh            # fetch → stage → verify → deb 全流程（产物在 out/）
+./build.sh            # fetch（源码+自建产物）→ stage → verify → deb
 make check            # 语法 + 资产静态自检（无需网络）
 ./build.sh info       # 查看当前版本/架构/产物路径
 ```
+
+- **二进制来源（D-015）**：`scripts/repro-build.sh` 自建（源码可复现，
+  V6 整改）；macOS 本机构建时设 `REPRO_BUILD_HOST=<构建机>`（私有配置，
+  严禁入库；建议同时 export `REPRO_GOPROXY` 走国内代理）
+- 升级上游版本：只改 repro-build.sh 头部常量（源码/Go 哈希 + commit/date）
+  → 重跑 → 期望哈希更新进 VERIFICATION.md + docs
 
 ## 7. 真机验证
 

@@ -1,0 +1,36 @@
+# 一键复现构建环境（TOS 审核 V6 整改配套）
+#
+# 用法（任意有 Docker 的机器）：
+#   docker build -f Dockerfile.repro -t sftpgo-repro .
+#   docker run --rm -v "$PWD/out-repro":/out sftpgo-repro
+#   # 产物: out-repro/sftpgo_x86_64 / sftpgo_aarch64 / manifest.txt
+#
+# 注：基础镜像用 ubuntu:22.04 tag。为防镜像 tag 漂移，构建脚本内置
+#     工具链护栏（gcc 必须 11.4.x、glibc 必须 2.35、Go 官方 tarball
+#     sha256 校验），任何不匹配都会直接构建失败而非产出不同哈希。
+#     需要更强锁定时可用当前 digest：
+#       docker inspect --format '{{index .RepoDigests 0}}' ubuntu:22.04
+#     并将 FROM 行替换为该 digest。
+FROM ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+RUN apt-get update -q -y \
+    && apt-get install -q -y --no-install-recommends \
+       ca-certificates curl xz-utils gcc gcc-aarch64-linux-gnu \
+    && rm -rf /var/lib/apt/lists/*
+
+# Go 工具链（官方 tarball，sha256 锁定；由 repro-build.sh 校验）
+RUN curl -fL --retry 5 -o /tmp/go.tgz https://go.dev/dl/go1.25.12.linux-amd64.tar.gz \
+        || curl -fL --retry 5 -o /tmp/go.tgz https://mirrors.aliyun.com/golang/go1.25.12.linux-amd64.tar.gz \
+    && echo "234828b7a89e0e303d2556310ee549fbcf253d28de937bac3da13d6294262ac1  /tmp/go.tgz" | sha256sum -c - \
+    && tar -C /usr/local -xzf /tmp/go.tgz && rm /tmp/go.tgz
+ENV PATH="/usr/local/go/bin:${PATH}"
+
+COPY scripts/repro-build.sh /usr/local/bin/repro-build.sh
+RUN chmod +x /usr/local/bin/repro-build.sh
+
+WORKDIR /work
+ENTRYPOINT ["/usr/local/bin/repro-build.sh", "/work"]
+CMD []
+# 产出挂载: docker run --rm -v "$PWD/out-repro":/out \
+#           --entrypoint sh sftpgo-repro -c 'repro-build.sh /work && cp /work/out/* /out/'

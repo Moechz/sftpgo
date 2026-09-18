@@ -1,13 +1,16 @@
 # Task state
 
-快照日期：2026-09-18 ｜ 当前版本：**2.7.5-3**（首启向导版，已上真机）
-最近实现：凭据可见性问题根治——废弃随机密码引导，改上游原生首启向导（D-014）
+快照日期：2026-09-19 ｜ 当前版本：**2.7.5-4**（源码可复现构建版，已上真机）
+最近实现：V6 拒审整改落地——deb 内二进制改为公开配方自建（D-015），
+两次独立构建位级一致，真机升级回归全绿
 
 ## 1. 仓库状态
 
-- 已发布：GitHub `Moechz/sftpgo`（公开），Release `v2.7.5-3` 含双架构 deb + sha256
+- GitHub `Moechz/sftpgo`（公开）；Release v2.7.5-3 已发，v2.7.5-4 待发
+  （资产：双架构 deb + sha256 + VERIFICATION.md + 复现配方全套）
 - 发布前已脱敏：内网主机名等不入库（历史压缩为单个初始提交）
-- 待办：TOS 应用中心提交（用 Release 资产地址）
+- 待办：发 v2.7.5-4 → 附 V6 整改说明重提审（拒审信中哈希 58c4fc8b 实为
+  上游二进制 fe9b7c96 的误引，回信时一并更正）
 
 ## 2. 完成情况
 
@@ -17,7 +20,9 @@
 - [x] 六文档骨架（AGENTS / HANDOFF / TASK_STATE / DESIGN_DECISIONS / CHANGELOG）
 - [x] 打包工程：config.env + build.sh（fetch/stage/verify/deb）+ makedeb.sh +
       make-config.py + check_assets.py + Makefile
-- [x] 供应链校验：tarball ↔ 上游官方 deb 二进制哈希互证 + SHA256.lock.<arch>
+- [x] V6 整改（D-015）：源码可复现自建构建管线（repro-build.sh +
+      Dockerfile.repro + VERIFICATION.md；REPRO.lock.<arch> 防篡改；
+      REPRO_BUILD_HOST 私有构建机编排，主机名不入库）
 - [x] verify 断言：config.ini JSON/互斥、23 语、init.d 单单元、ExecStart 无 $、
       端口三方一致（nginx conf ↔ sftpgo.json ↔ config.env）、ELF 架构防呆、
       Mach-O 混入检查、S8 零网络 grep、webui.bz2 含隐私入口

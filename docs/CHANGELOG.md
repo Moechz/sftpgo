@@ -1,5 +1,23 @@
 # Changelog
 
+## 2.7.5-4（2026-09-19）—— 源码可复现构建（V6 整改）
+
+### Changed
+- **deb 内 sftpgo 二进制改为公开配方自建**（`scripts/repro-build.sh`）：
+  上游源码 + go1.25.12 + gcc 11.4/glibc 2.35（Ubuntu 22.04 = TOS 7 基座），
+  任何人可按 `VERIFICATION.md` 三步复现并哈希比对（V6 拒审整改落地）
+  - x86_64 `5c5415f16611893f15b938c23a2cd5cb0df9b8b4f66654ea6fad9856b5b643b0`
+  - aarch64 `7a3932a2e0ecc73c48ac8838fc83662fcfe5c6050e597346f8dc8120c4c71816`
+- build.sh fetch 重写：上游源码归档（sha256 锁定）取代二进制 tarball；
+  供应链 lock 迁移为 REPRO.lock.<arch>；新增 manifest/buildinfo 注入断言
+- verify 新增：staged 二进制 == 自建产物哈希、复现材料三件套在库
+- 新增审核者材料：`VERIFICATION.md`（复现指南）+ `Dockerfile.repro`（一键环境）
+
+### Verified
+- 真机（TOS 7 x86_64）2.7.5-3 → 2.7.5-4 升级：装机二进制哈希 = 自建产物；
+  Web 反代 302 / admin token 200 / 三端口监听正常
+
+
 ## 2.7.5-3 — 2026-09-18
 
 ### Changed
