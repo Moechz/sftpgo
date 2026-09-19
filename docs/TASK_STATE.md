@@ -30,6 +30,28 @@
 
 ## 3. 最近一次真机验证（2026-09-17，测试机 / TOS 7 / x86_64）
 
+**2026-09-19，2.7.5-4（源码可复现构建版）全链路回归：**
+
+| 项 | 结果 |
+|---|---|
+| apt 升级 2.7.5-3 → 2.7.5-4 | ✅ 干净升级，服务 active |
+| 装机二进制哈希 | ✅ = 自建产物 `5c5415f1…43b0`（V6 核心验证点） |
+| 端口 | ✅ 8095/8096 仅回环；2022 对外（跨机 nc 可达）；8181 反代 |
+| REST API（/sftpgo/api/v2/） | ✅ admin token 200 / 建用户 201 / 删用户 200 |
+| WebDAV（/sftpgo/webdav/） | ✅ PUT 201 / GET 200 / PROPFIND 207 |
+| WebAdmin / WebClient | ✅ 登录页双 200 |
+| SFTP :2022 | ✅ LIST/PUT/GET（curl sftp + libssh）；与 WebDAV 共享 home 跨协议一致 |
+| 重启回归 | ✅ restart 后 active + token 200；journal 无 ERR/panic |
+
+测试注记：SFTP 交互式 expect 驱动易卡死（提示语匹配），用 `curl sftp://`
+替代更稳；home 设 /tmp 时受沙箱 PrivateTmp 隔离（设计行为），真实场景
+home 在 /volumeX。测试残留已清（vtest4 已删）。
+
+---
+
+<details><summary>历史：2.7.5-1 首次真机验证（2026-09-17）</summary>
+
+
 | 项 | 结果 |
 |---|---|
 | apt install 2.7.5-1 | ✅ 一次成功；首管理员随机密码引导（安装输出 + 0600 凭据文件） |
