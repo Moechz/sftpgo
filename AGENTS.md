@@ -6,7 +6,7 @@
 AGPL-3.0，Go 静态二进制，自带 WebAdmin + WebClient）封装成 **TOS 7 应用中心规范的 deb 包**。
 
 - 目标平台：TerraMaster TOS 7（Ubuntu 22.04 基座，systemd 249 / dpkg amd64 & arm64）
-- 打包规范：`~/Documents/projects/TOS-DEB-PACKAGING-GUIDE.md`（**动手前必读**，30 条硬坑）
+- 打包规范：`~/Documents/projects/TOS-DEB-PACKAGING-GUIDE.md`（**动手前必读**，36 条硬坑）
 - 上游版本：2.7.5（config.env 中定义，升级只改那里 + 重跑 fetch）
 - 参考范本：`~/Documents/projects/Beszel`（Go 静态二进制 + External Open 同款骨架）
 
