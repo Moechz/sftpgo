@@ -1,103 +1,106 @@
-# SFTPGo for TerraMaster TOS 7
+# sftpgo-for-tos
 
-[SFTPGo](https://github.com/drakkan/sftpgo)（AGPL-3.0）的 TOS 应用中心 deb 封装：
-SFTP / WebDAV / FTP/S / HTTP/S 文件传输服务器，内置 WebAdmin 管理端与 WebClient 用户端，
-支持本地目录与云存储（S3 兼容 / GCS / Azure）后端。
+> TerraMaster TOS 7 App Center — **Docker application** package for
+> [SFTPGo](https://github.com/drakkan/sftpgo).
 
-## 快速上手
+## What this is
 
-安装完成后**没有任何预置账号**：首次打开 `https://<NAS的IP>:8181/sftpgo/`
-会自动进入初始化向导，由你自定义管理员用户名与密码（应用中心的应用
-说明里同样写明了这一点）。
+A four-file TOS Docker application archive (`sftpgodocker.tar.gz`) that installs
+SFTPGo on TOS 7 through the App Center:
 
-| 入口 | 地址 |
+- `config.ini` — TOS application metadata (`application_type: docker`, id `sftpgodocker`)
+- `sftpgodocker.lang` — 23-language superset (TOS requires 14)
+- `sftpgodocker.svg` — application icon (10678 bytes, 1 SVG elements)
+- `docker-compose.yml` — one service, image `drakkan/sftpgo:v2.7.6`
+
+## How it works
+
+| | |
 |---|---|
-| 初始化向导（首次） | `https://<NAS的IP>:8181/sftpgo/`（自动引导创建管理员） |
-| WebAdmin 管理端 | `https://<NAS的IP>:8181/sftpgo/web/admin/login` |
-| WebClient 用户端 | `https://<NAS的IP>:8181/sftpgo/web/client/login` |
-| WebDAV 挂载 | `http://<NAS的IP>:8181/sftpgo/webdav/`（用户凭据，各自独立根） |
-| REST API | `http://<NAS的IP>:8181/sftpgo/api/v2/` |
-| SFTP | `sftp -P 2022 <用户名>@<NAS的IP>` |
-| 隐私政策 | `https://<NAS的IP>:8181/sftpgo/privacy/` |
+| Container image | `drakkan/sftpgo:v2.7.6` (Docker Hub, used unmodified) |
+| Open | `http://<NAS-IP>:8165/` (container port 8080) |
+| Runs as | non-root, `user: "1000:1000"` |
+| Persistent data | `/var/lib/sftpgo` → `/Volume1/DockerAppData/sftpgodocker/data`, `/srv/sftpgo` → `/Volume1/DockerAppData/sftpgodocker/srv` |
+| Logs | `docker logs sftpgodocker` (stdout/stderr) |
 
-TOS 桌面点击应用图标即在新标签页打开。首次使用建议：
+`/var/lib/sftpgo` keeps the SQLite database and configuration; `/srv/sftpgo` (mounted from `.../srv`) is the default storage root for users.
 
-1. 按向导创建管理员（用户名密码自定；建议随后在个人资料中开启两步验证）
-2. 「用户」→ 新建虚拟用户，home 目录指向 TOS 共享文件夹（如 `/Volume1/<共享名>`）
-3. 按需给 sftpgo 系统用户授权（见下）
+## Design highlights
 
-## 端口与网络
+- **Non-root.** `user: "1000:1000"`; verified on real hardware (the container reports uid 1000).
+- **Fixed image tag, never `:latest`**, Docker Hub only, no `privileged`, no `network_mode: host`, and no Docker socket, no `cap_add`.
+- **Health check** probing the service on container port 8080.
+- **Deterministic build**: GNU tar with uid/gid 0 and zeroed timestamps, gzip without a timestamp, plus the review-standards self-check above.
+- **Runs as uid 1000.** The image's own user matches the TOS application user.
+- **Web admin only.** Only the HTTP admin/API port is published; add mappings if you need SFTP or WebDAV.
 
-| 端口 | 用途 | 监听面 |
-|---|---|---|
-| 8095 | WebAdmin / WebClient / REST API 后端 | 仅 127.0.0.1（经 TOS nginx 反代） |
-| 8096 | WebDAV 后端 | 仅 127.0.0.1（经 TOS nginx 反代） |
-| 2022 | SFTP（核心功能） | 全部接口（按需在防火墙/路由器放行） |
+## Privacy
 
-FTP 默认关闭（`/usr/local/sftpgo/sftpgo.env` 里有开启注释）。Web 流量全部经
-TOS web 端口 8181 的 `/sftpgo/` 路由，不对外多开端口。
+This application runs entirely on your NAS. It does not include analytics, telemetry or advertising SDKs, and the packaging contains no code that sends data to the packager. Data is only exchanged with the services you configure yourself (for example media servers, notification endpoints or model APIs), and only from the container. Everything the application stores lives in the application data folder described above; removing the app with its data deletes it.
 
-## 文件与数据
+## Third-party components
 
-| 路径 | 内容 | 卸载行为 |
-|---|---|---|
-| `/usr/local/sftpgo/bin/sftpgo` | 上游官方静态二进制（与官方 deb 哈希互证） | 随包 |
-| `/usr/local/sftpgo/static,templates,openapi/` | Web UI 资源（升级会还原，可自定义品牌） | 随包 |
-| `/usr/local/sftpgo/sftpgo.json` | 主配置（首装从 `.example` 生成，**升级不覆盖**） | 保留 |
-| `/usr/local/sftpgo/sftpgo.env` | 环境变量覆盖（端口/FTP/防暴力破解等） | 保留 |
-| `/var/lib/sftpgo/hostkeys/id_*` | SFTP host key（安装时预生成，升级不变，客户端不告警） | remove 保留 / purge 删除 |
-| `/var/lib/sftpgo/sftpgo.db` | SQLite 数据库（用户/管理员/事件规则/分享） | remove 保留 / purge 删除 |
+The package runs the upstream image `drakkan/sftpgo:v2.7.6` unmodified. Its components and their licences are those of the upstream project (https://github.com/drakkan/sftpgo), which is distributed under **AGPL-3.0**. No upstream source code is redistributed in this repository; only the four packaging files are original work.
 
-改配置后：`systemctl restart sftpgo`。
+## Runtime file manifest
 
-## 权限：让虚拟用户能读写共享文件夹
+Everything the application writes on the NAS lives inside its own data
+directory; the container-internal `/tmp` is discarded with the container. The
+table lists what is created and how it behaves. Nothing else is written.
 
-服务以专用系统用户 `sftpgo` 运行。虚拟用户 home 指向 TOS 共享文件夹时，
-该文件夹需要对 sftpgo 可读写。两种做法：
+| Path | Purpose | Created when | Growth bound | Lifecycle |
+|---|---|---|---|---|
+| `/Volume1/DockerAppData/sftpgodocker/data` | SFTPGo application data (everything the container writes outside /tmp) | on first start / on demand | bounded by your own data | persistent; kept on uninstall unless you ask to delete it |
+| `/Volume1/DockerAppData/sftpgodocker/srv` | SFTPGo application data (everything the container writes outside /tmp) | on first start / on demand | bounded by your own data | persistent; kept on uninstall unless you ask to delete it |
+
+## Build
 
 ```bash
-# A. TOS ACL（推荐）：控制面板 → 共享文件夹 → 权限，把 sftpgo 加入可读写列表
-#    （应用专用用户会出现在「应用用户」中）
-# B. 命令行：把 sftpgo 加入共享文件夹的属组（示例）
-sudo usermod -aG <共享文件夹组> sftpgo && sudo systemctl restart sftpgo
+scripts/build.sh                  # -> out/sftpgodocker.tar.gz + .sha256
+scripts/build.sh 2.7.6-2   # packaging iteration bump
+scripts/build.sh 2.7.6-1 aarch64
 ```
 
-沙箱说明：unit 使用 `ProtectSystem=full`（非 strict），因此 `/Volume1` 等
-共享卷可写；`/home` 只读（需要写入 /home 映射时，自建 drop-in 覆盖：
-`/etc/systemd/system/sftpgo.service.d/override.conf` 写入
-`[Service]\nProtectHome=false` 后 `systemctl daemon-reload && systemctl restart sftpgo`）。
+The build stages the four files, substitutes the version/platform placeholders,
+removes CRLF/BOM/AppleDouble, then runs
+`tools/verify.py`, a review-standards self-check (archive layout, JSON validity,
+required fields, 14+ language coverage, version consistency, Docker-Hub-only
+images, fixed tag, reserved/recommended host ports, non-root user, per-service
+healthcheck/TZ/restart, data path below the application data root, never the
+`/Volume*` wildcard, comment-free sequence blocks, `x-app-meta` position, no
+literal secrets and the SVG size/element limits).
 
-## 安全建议
-
-- SFTP 对外暴露时，开启防暴力破解（env 里取消注释 `SFTPGO_COMMON__DEFENDER__*`）
-- 传输加密：TOS 侧 8181 若配置了 HTTPS 则全链路加密；SFTP 天然加密
-- 深度定制（云存储、事件规则、OIDC、邮件）直接编辑 `sftpgo.json`，
-  参考 [官方文档](https://docs.sftpgo.com)
-
-## 与上游官方 deb 的关系
-
-本包与上游 goreleaser 包同名 `sftpgo`：从官方 deb 升级到本包是普通 dpkg
-升级（服务单元自动替换）。上游数据在 `/etc/sftpgo/sftpgo.db`，本包数据在
-`/var/lib/sftpgo/`——升级时安装器会打印迁移提示，需手动复制一次。
-
-## 可复现性（V6 审核整改）
-
-deb 内的 sftpgo 二进制由本仓库公开配方（`scripts/repro-build.sh`）从上游
-官方源码构建，期望哈希与三步验证流程见 [VERIFICATION.md](VERIFICATION.md)；
-一键环境见 [Dockerfile.repro](Dockerfile.repro)。
-
-## 构建
+## Local verification
 
 ```bash
-./build.sh            # 产物在 out/（fetch → stage → verify → deb）
-make check            # 静态自检（无需网络）
-# TARGET_ARCH 在 config.env 切换 amd64 / arm64
+./TOSAppSelfTestingTool -c out/sftpgodocker.tar.gz   # official spec check
+bash test/install-and-verify.sh                  # on-device E2E (needs root)
 ```
 
-打包规范与硬坑知识库见 `~/Documents/projects/TOS-DEB-PACKAGING-GUIDE.md`；
-本项目决策台账见 `docs/DESIGN_DECISIONS.md`。
+> Docker applications cannot be side-loaded through the App Center's manual
+> install page (it accepts `.deb` only); the official self-testing tool's `-i`
+> mode or `docker compose` are the only ways to install one for testing.
 
-## 许可
+## Store submission checklist
 
-上游 AGPL-3.0（全文随包：`/usr/share/doc/sftpgo/copyright`）。本封装脚本
-与新增资产同样以 AGPL-3.0 提供。
+1. Public GitHub repo (code + README only).
+2. Release **tag `v2.7.6-1`**, assets `sftpgodocker.tar.gz` +
+   `sftpgodocker.tar.gz.sha256` (Docker asset naming: `<app_id>.tar.gz`, **no
+   platform suffix**).
+3. Developer platform → Add Application: ID `sftpgodocker`, package type Docker,
+   repository URL, architecture `x86_64`.
+4. Version Management → Add Version `2.7.6-1` → automated validation → review.
+
+## License / branding
+
+SFTPGo is distributed by its upstream authors under **AGPL-3.0**. The container image is the official image from Docker Hub (`drakkan/sftpgo:v2.7.6`) and is used unmodified; no upstream source code is redistributed here. This packaging is an independent community submission by Moechz and is not affiliated with the upstream project or TerraMaster.
+
+## Limitations
+
+- Default credentials admin/password must be changed on first login.
+- SFTP and WebDAV ports are not published by this package.
+- The UI is plain HTTP; use a TLS reverse proxy before exposing it to the internet.
+
+---
+
+Packaged for TOS 7 by Moechz. Upstream image used unmodified from Docker Hub.

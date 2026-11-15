@@ -1,0 +1,195 @@
+# ===========================================================================
+# Multilingual file for the TOS 7 Docker application "sftpgodocker".
+# File name MUST be: <appid>.lang.  23-language superset (14 required by TOS).
+# The App Center picks the text matching the user's device language;
+# untranslated nodes fall back to English, which the official guide allows.
+# Fields: name (app title), auth (upstream author), descript (up to 512
+# chars), release_note, important (up to 512 chars).
+# Translations come from tosapp.json "translations"; run
+#   tosdocker lang <app>          to re-render this file
+#   tosdocker translate <app>     to see what still needs translating
+# ===========================================================================
+[en-us]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[zh-cn]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo 是全功能文件传输服务器，带网页管理面板：在本地目录之上提供 SFTP、WebDAV、HTTP/S 与 S3 前端，支持按用户配额、权限与操作日志，全部在浏览器里配置。管理界面与它管理的数据都留在你的 NAS 上。"
+release_note = "1. 首个版本：基于 Docker Hub 的 SFTPGo 2.7.6，以非 root 容器运行。文件传输服务器，带网页管理、配额与按用户存储；数据保存在应用数据目录。"
+important    = "需要 DockerEngine（缺失时应用中心会自动安装）。网页管理在已发布端口（/web/admin）；首次启动会创建默认账号 admin、密码 password——请立刻修改。本包**没有**发布 SFTP（2022）与 WebDAV 端口，请用网页界面与 HTTP 上传，或自行加端口映射。数据与配置保存在 DockerAppData/sftpgodocker。界面为纯 HTTP。"
+
+[zh-hk]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo 是全功能檔案傳輸伺服器，帶網頁管理面板：在本機目錄之上提供 SFTP、WebDAV、HTTP/S 與 S3 前端，支援按使用者配額、權限與操作日誌，全部在瀏覽器裡設定。管理介面與它管理的資料都留在你的 NAS 上。"
+release_note = "1. 首個版本：基於 Docker Hub 的 SFTPGo 2.7.6，以非 root 容器運行。檔案傳輸伺服器，帶網頁管理、配額與按使用者儲存；資料保存在應用資料目錄。"
+important    = "需要 DockerEngine（缺少時應用中心會自動安裝）。網頁管理在已發佈端口（/web/admin）；首次啟動會建立預設帳號 admin、密碼 password——請立刻修改。本包**沒有**發佈 SFTP（2022）與 WebDAV 端口，請用網頁介面與 HTTP 上傳，或自行加端口映射。資料與設定保存在 DockerAppData/sftpgodocker。介面為純 HTTP。"
+
+[fr-fr]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[de-de]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[it-it]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[es-es]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[hu-hu]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[ja-jp]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[ko-kr]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[pl-pl]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[ru-ru]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[tr-tr]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[pt-pt]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[ar-sa]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[cs-cz]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[he-il]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[id-id]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[nb-no]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[nl-nl]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[sv-se]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[th-th]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+
+[vi-vn]
+name         = "SFTPGo"
+auth         = "drakkan"
+version      = "@@VERSION@@"
+descript     = "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS."
+release_note = "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder."
+important    = "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP."
+

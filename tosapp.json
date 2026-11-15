@@ -1,0 +1,108 @@
+{
+  "app_id": "sftpgodocker",
+  "title": "SFTPGo",
+  "image": "drakkan/sftpgo:v2.7.6",
+  "repo_name": "sftpgo",
+  "mode": "plain",
+  "container_port": 8080,
+  "category": [
+    "Backup_Sync"
+  ],
+  "volumes": [
+    {
+      "host": "/Volume1/DockerAppData/sftpgodocker/data",
+      "container": "/var/lib/sftpgo"
+    },
+    {
+      "host": "/Volume1/DockerAppData/sftpgodocker/srv",
+      "container": "/srv/sftpgo"
+    }
+  ],
+  "env": {
+    "TZ": "Asia/Shanghai"
+  },
+  "auth": "drakkan",
+  "upstream_url": "https://github.com/drakkan/sftpgo",
+  "upstream_license": "AGPL-3.0",
+  "descript": "SFTPGo is a full-featured file transfer server with a web admin panel: SFTP, WebDAV, HTTP/S and S3 frontends on top of local folders, per-user quotas, permissions and activity logs, all configured from the browser. The web UI and the data it manages stay on your NAS.",
+  "release_note": "1. First release: SFTPGo 2.7.6 from Docker Hub as a non-root container. File transfer server with web admin, quotas and per-user storage; data in the application data folder.",
+  "important": "Requires DockerEngine (installed automatically if missing). The web admin is on the published port (/web/admin); the first start creates the default account admin with password 'password' - change it immediately. SFTP (2022) and WebDAV are NOT published by this package; use the web UI and HTTP uploads, or add your own port mapping. Data and configuration live in DockerAppData/sftpgodocker. Plain HTTP.",
+  "probe": {
+    "user_in_image": "1000:1000",
+    "entrypoint": null,
+    "cmd": [
+      "sftpgo",
+      "serve"
+    ],
+    "exposed_ports": [],
+    "declared_volumes": [],
+    "image_healthcheck": [],
+    "digest": "drakkan/sftpgo@sha256:1edd28d80de2a008863fbfc58c8ff7db47b1b410bae48d4e6076192337809b11",
+    "architecture": "x86_64",
+    "platforms": [
+      "x86_64",
+      "aarch64"
+    ],
+    "http_client_in_image": "",
+    "trial_run": {
+      "ok": true,
+      "http_code": "",
+      "state": "running",
+      "paths": [
+        "/var"
+      ],
+      "host_port": 18000,
+      "log_tail": "te a new host key\"}\n{\"level\":\"info\",\"time\":\"2026-11-15T09:18:46.387\",\"sender\":\"sftpd\",\"message\":\"No host keys configured and \\\"id_ed25519\\\" does not exist; try to create a new host key\"}\n{\"level\":\"info\",\"time\":\"2026-11-15T09:18:46.390\",\"sender\":\"sftpd\",\"message\":\"Loading private host key \\\"id_rsa\\\"\"}\n{\"level\":\"info\",\"time\":\"2026-11-15T09:18:46.390\",\"sender\":\"sftpd\",\"message\":\"Host key \\\"id_rsa\\\" loaded, type \\\"ssh-rsa\\\", fingerprint \\\"SHA256:ogOOSLov0ZjiKKmamIhAuDis9V4RM95hUwChSjBnyMk\\\", algorithms [rsa-sha2-256 rsa-sha2-512]\"}\n{\"level\":\"info\",\"time\":\"2026-11-15T09:18:46.391\",\"sender\":\"sftpd\",\"message\":\"Loading private host key \\\"id_ecdsa\\\"\"}\n{\"level\":\"info\",\"time\":\"2026-11-15T09:18:46.391\",\"sender\":\"sftpd\",\"message\":\"Host key \\\"id_ecdsa\\\" loaded, type \\\"ecdsa-sha2-nistp256\\\", fingerprint \\\"SHA256:nPUgzIve1898ccFuh+qyRfwkcbbNPvrH/hnDdiVYKsc\\\", algorithms [ecdsa-sha2-nistp256]\"}\n{\"level\":\"info\",\"time\":\"2026-11-15T09:18:46.391\",\"sender\":\"sftpd\",\"message\":\"Loading private host key \\\"id_ed25519\\\"\"}\n{\"level\":\"info\",\"time\":\"2026-11-15T09:18:46.391\",\"sender\":\"sftpd\",\"message\":\"Host key \\\"id_ed25519\\\" loaded, type \\\"ssh-ed25519\\\", fingerprint \\\"SHA256:piiaxt6oqUfvjWdlTRaMw10SmRF5dSPkuS03GLDg8d4\\\", algorithms [ssh-ed25519]\"}\n{\"level\":\"debug\",\"time\":\"2026-11-15T09:18:46.391\",\"sender\":\"sftpd\",\"message\":\"enabled SSH commands [md5sum sha1sum sha256sum cd pwd scp]\"}\n{\"level\":\"info\",\"time\":\"2026-11-15T09:18:46.391\",\"sender\":\"sftpd\",\"message\":\"server listener registered, address: [::]:2022\"}",
+      "files_in_mounts": ""
+    },
+    "docker_hub": {},
+    "github": {
+      "owner": "drakkan",
+      "repo": "sftpgo",
+      "description": "Full-featured and highly configurable SFTP, HTTP/S, FTP/S and WebDAV server - S3, Google Cloud Storage, Azure Blob",
+      "license": "AGPL-3.0",
+      "homepage": "https://sftpgo.com"
+    }
+  },
+  "platform": "x86_64",
+  "user": "1000:1000",
+  "publisher": "Moechz",
+  "compose_project": "sftpgodocker",
+  "github_repo": "sftpgo",
+  "upstream_version": "2.7.6",
+  "release_tag_prefix": "v",
+  "version": "2.7.6-1",
+  "help": "https://github.com/Moechz/sftpgo/issues",
+  "official": "https://github.com/drakkan/sftpgo",
+  "license": "AGPL-3.0",
+  "docker_socket": false,
+  "group_add": [],
+  "host_port": 8165,
+  "healthcheck": [
+    "CMD-SHELL",
+    "bash -c 'cat < /dev/null > /dev/tcp/127.0.0.1/8080'"
+  ],
+  "healthcheck_start_period": "45s",
+  "translations": {
+    "zh-cn": {
+      "descript": "SFTPGo 是全功能文件传输服务器，带网页管理面板：在本地目录之上提供 SFTP、WebDAV、HTTP/S 与 S3 前端，支持按用户配额、权限与操作日志，全部在浏览器里配置。管理界面与它管理的数据都留在你的 NAS 上。",
+      "important": "需要 DockerEngine（缺失时应用中心会自动安装）。网页管理在已发布端口（/web/admin）；首次启动会创建默认账号 admin、密码 password——请立刻修改。本包**没有**发布 SFTP（2022）与 WebDAV 端口，请用网页界面与 HTTP 上传，或自行加端口映射。数据与配置保存在 DockerAppData/sftpgodocker。界面为纯 HTTP。",
+      "release_note": "1. 首个版本：基于 Docker Hub 的 SFTPGo 2.7.6，以非 root 容器运行。文件传输服务器，带网页管理、配额与按用户存储；数据保存在应用数据目录。"
+    },
+    "zh-hk": {
+      "descript": "SFTPGo 是全功能檔案傳輸伺服器，帶網頁管理面板：在本機目錄之上提供 SFTP、WebDAV、HTTP/S 與 S3 前端，支援按使用者配額、權限與操作日誌，全部在瀏覽器裡設定。管理介面與它管理的資料都留在你的 NAS 上。",
+      "important": "需要 DockerEngine（缺少時應用中心會自動安裝）。網頁管理在已發佈端口（/web/admin）；首次啟動會建立預設帳號 admin、密碼 password——請立刻修改。本包**沒有**發佈 SFTP（2022）與 WebDAV 端口，請用網頁介面與 HTTP 上傳，或自行加端口映射。資料與設定保存在 DockerAppData/sftpgodocker。介面為純 HTTP。",
+      "release_note": "1. 首個版本：基於 Docker Hub 的 SFTPGo 2.7.6，以非 root 容器運行。檔案傳輸伺服器，帶網頁管理、配額與按使用者儲存；資料保存在應用資料目錄。"
+    }
+  },
+  "data_notes": "`/var/lib/sftpgo` keeps the SQLite database and configuration; `/srv/sftpgo` (mounted from `.../srv`) is the default storage root for users.",
+  "design_notes": [
+    "**Runs as uid 1000.** The image's own user matches the TOS application user.",
+    "**Web admin only.** Only the HTTP admin/API port is published; add mappings if you need SFTP or WebDAV."
+  ],
+  "limitations": [
+    "- Default credentials admin/password must be changed on first login.",
+    "- SFTP and WebDAV ports are not published by this package.",
+    "- The UI is plain HTTP; use a TLS reverse proxy before exposing it to the internet."
+  ]
+}
